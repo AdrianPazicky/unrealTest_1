@@ -23,7 +23,7 @@ ASMagicProjectile::ASMagicProjectile()
 	EffectComp->SetupAttachment(RootComponent);
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(("MovementComp"));
-	MovementComp->InitialSpeed = 1000.f;
+	MovementComp->InitialSpeed = 3000.f;
 	MovementComp->bRotationFollowsVelocity = true;
 	MovementComp->bInitialVelocityInLocalSpace = true;
 
