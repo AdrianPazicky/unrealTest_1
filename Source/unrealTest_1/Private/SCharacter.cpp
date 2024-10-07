@@ -6,6 +6,8 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SInteractionComponent.h"
+#include "STeleportProjectile.h"
+#include "SAttributeComponent.h"
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -22,6 +24,8 @@ ASCharacter::ASCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>("InteractionComp");
+
+	AttributeComp = CreateDefaultSubobject<USAttributeComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationYaw = false;
@@ -54,7 +58,11 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("SecondAttack", IE_Pressed, this, &ASCharacter::SecondAttack);
+	PlayerInputComponent->BindAction("ThirdAttack", IE_Pressed, this, &ASCharacter::ThirdAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 }
 void ASCharacter::MoveForward(float Value) {
 
@@ -81,19 +89,101 @@ void ASCharacter::PrimaryAttack()
 
 	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
 	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
-
-
 }
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+	// Get the player's camera location and direction
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+	// Define the end point for the line trace (a large distance ahead of the camera)
+	FVector TraceEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+
+	// Perform a line trace to see if we hit anything
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this); // Ignore self
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, CameraLocation, TraceEnd, ECC_Visibility, QueryParams);
+
+	FVector TargetLocation;
+	if (bHit)
+	{
+		// If we hit something, use the hit location as the target
+		TargetLocation = Hit.ImpactPoint;
+	}
+	else
+	{
+		// If we didn't hit anything, use the trace end point as the target
+		TargetLocation = TraceEnd;
+	}
+
+	// Calculate the direction from the hand to the target location
+	FVector Direction = (TargetLocation - HandLocation).GetSafeNormal();
+
+	// Adjust direction based on the camera's pitch rotation
+	// You can optionally tweak the pitch angle or limit it if needed
+	FRotator AdjustedRotation = Direction.Rotation();
+
+	// Create the transform for spawning the projectile (direction from hand to target)
+	FTransform SpawnTM = FTransform(AdjustedRotation, HandLocation);
+
+	// Spawn the projectile
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+
+void ASCharacter::SecondAttack()
+{
+	PlayAnimMontage(AttackAnim2);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_SecondAttack, this, &ASCharacter::SecondAttack_TimeElapsed, 1.0f);
+	UE_LOG(LogTemp, Log, TEXT("Second Attack"));
+}
+void ASCharacter::SecondAttack_TimeElapsed()
+{
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_02");
 
 	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	GetWorld()->SpawnActor<AActor>(ProjectileClass2, SpawnTM, SpawnParams);
+}
+void ASCharacter::ThirdAttack()
+{
+	PlayAnimMontage(AttackAnim3);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_ThirdAttack, this, &ASCharacter::ThirdAttack_TimeElapsed, 0.2f);
+	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+}
+void ASCharacter::ThirdAttack_TimeElapsed()
+{
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_02");
+
+	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+	AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(ProjectileClass3, SpawnTM, SpawnParams);
+
+	if (SpawnedProjectile)
+	{
+		SpawnedProjectile->OnDestroyed.AddDynamic(this, &ASCharacter::TeleportToProjectile);
+	}
+}
+void ASCharacter::TeleportToProjectile(AActor* DestroyedActor)
+{
+	SetActorLocation(DestroyedActor->GetTargetLocation());
 }
 void ASCharacter::PrimaryInteract() 
 {
