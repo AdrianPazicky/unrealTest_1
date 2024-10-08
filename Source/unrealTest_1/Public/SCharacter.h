@@ -11,6 +11,7 @@ class USpringArmComponent;
 class USInteractionComponent;
 class UAnimMontage;
 class USAttributeComponent;
+class USActionComponent;
 
 UCLASS()
 class UNREALTEST_1_API ASCharacter : public ACharacter
@@ -52,9 +53,11 @@ protected:
 	UPROPERTY(VisibleAnywhere);
 	USInteractionComponent* InteractionComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components");
+	USActionComponent* ActionComp;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -68,6 +71,8 @@ protected:
 	void ThirdAttack();
 	void ThirdAttack_TimeElapsed();
 	void PrimaryInteract();
+	void SprintStart();
+	void SprintStop();
 
 
 	//void Jump();
