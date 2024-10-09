@@ -6,6 +6,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "SAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
@@ -35,6 +36,10 @@ ASMagicProjectile::ASMagicProjectile()
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (ImpactSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}
 	if (OtherActor)
 	{
 		USAttributeComponent* AttributeComp = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
@@ -51,7 +56,10 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (ProjectileSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ProjectileSound, GetActorLocation());
+	}
 }
 
 // Called every frame

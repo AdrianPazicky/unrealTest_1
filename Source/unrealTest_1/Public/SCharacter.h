@@ -22,21 +22,35 @@ class UNREALTEST_1_API ASCharacter : public ACharacter
 protected:
 	UPROPERTY(EditAnywhere, Category = "PrimaryAttack_Class");
 	TSubclassOf<AActor> ProjectileClass;
+	UPROPERTY(EditAnywhere, Category = "BlackholeAttack_Class");
+	TSubclassOf<AActor> BlackHoleProjectileClass;
+	UPROPERTY(EditAnywhere, Category = "Dash_Class");
+	TSubclassOf<AActor> DashProjectileClass;
+	/*
 	UPROPERTY(EditAnywhere, Category = "SecondAttack_Class");
 	TSubclassOf<AActor> ProjectileClass2;
 	UPROPERTY(EditAnywhere, Category = "ThirdAttack_Class");
 	TSubclassOf<AActor> ProjectileClass3;
+	*/
 
 	UPROPERTY(EditAnywhere, Category = "PrimaryAttack_Anim");
 	UAnimMontage* AttackAnim;
+
+	/*
 	UPROPERTY(EditAnywhere, Category = "SecondAttack_Anim");
 	UAnimMontage* AttackAnim2;
 	UPROPERTY(EditAnywhere, Category = "ThirdAttack_Anim");
 	UAnimMontage* AttackAnim3;
+	*/
 
-	FTimerHandle TimerHandle_PrimaryAttack;
-	FTimerHandle TimerHandle_SecondAttack;
-	FTimerHandle TimerHandle_ThirdAttack;
+	UPROPERTY(EditAnywhere, Category = "Delay")
+	float AttackAnimDelay;
+
+	FTimerHandle TimerHandle_PrimaryAttack; 
+	FTimerHandle TimerHandle_BlackholeAttack;
+	FTimerHandle TimerHandle_Dash;
+	//FTimerHandle TimerHandle_SecondAttack;
+	//FTimerHandle TimerHandle_ThirdAttack;
 
 public:
 	// Sets default values for this character's properties
@@ -66,21 +80,33 @@ protected:
 	void MoveRight(float Value);
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
+	/*
 	void SecondAttack();
 	void SecondAttack_TimeElapsed();
 	void ThirdAttack();
 	void ThirdAttack_TimeElapsed();
+	*/
+	void BlackHoleAttack();
+	void BlackHoleAttack_TimeElapsed();
+	void Dash();
+	void Dash_TimeElapsed();
 	void PrimaryInteract();
 	void SprintStart();
 	void SprintStop();
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
 
 	//void Jump();
 
 public:	
+	/*
 	UFUNCTION()
 	void TeleportToProjectile(AActor* Actor);
-
+	*/
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
