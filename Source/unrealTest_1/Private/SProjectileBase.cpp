@@ -32,7 +32,6 @@ void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* Oth
 {
 	Explode();
 }
-
 void ASProjectileBase::Explode_Implementation()
 {
 	if (ensure(!IsPendingKill()))
