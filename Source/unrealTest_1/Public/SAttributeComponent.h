@@ -33,6 +33,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealthMax() const;
 
+	UFUNCTION()
+	bool IsFullHealth() const;
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnHealthChanged OnHealthChanged;

@@ -12,6 +12,7 @@ class USInteractionComponent;
 class UAnimMontage;
 class USAttributeComponent;
 class USActionComponent;
+class UParticleSystem;
 
 UCLASS()
 class UNREALTEST_1_API ASCharacter : public ACharacter
@@ -20,6 +21,15 @@ class UNREALTEST_1_API ASCharacter : public ACharacter
 
 
 protected:
+
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName TimeToHitParamName;
+	UPROPERTY(VisibleAnywhere, Category = "Effects")
+	FName HandSocketName;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UParticleSystem* CastingEffect;
+
 	UPROPERTY(EditAnywhere, Category = "PrimaryAttack_Class");
 	TSubclassOf<AActor> ProjectileClass;
 	UPROPERTY(EditAnywhere, Category = "BlackholeAttack_Class");
@@ -73,6 +83,7 @@ protected:
 	void PrimaryInteract();
 	void SprintStart();
 	void SprintStop();
+	void StartAttackEffects();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 
 	UFUNCTION()
