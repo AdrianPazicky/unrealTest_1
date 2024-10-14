@@ -17,7 +17,7 @@ UCLASS()
 class UNREALTEST_1_API ASGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
@@ -39,6 +39,9 @@ protected:
 
 	UFUNCTION()
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UFUNCTION(Exec)
+	void KillAll();
 public:
 	ASGameModeBase();
 	virtual void StartPlay() override;

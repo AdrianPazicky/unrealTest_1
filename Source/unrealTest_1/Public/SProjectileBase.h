@@ -21,6 +21,9 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = "Characterics")
+	float Damage;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UParticleSystem* ImpactVFX;
 
@@ -36,10 +39,8 @@ protected:
 	UFUNCTION()
 	virtual void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Explode();
-
 
 	// Called when the game starts or when spawned
 	virtual void PostInitializeComponents() override;
